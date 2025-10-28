@@ -1,5 +1,5 @@
 # ======================================================
-# 🌿 KEEP GITHUB GREEN — BY HASAN MAHFUDH
+# 🌿 KEEP GITHUB GREEN 
 # ======================================================
 # Workflow ini otomatis melakukan commit setiap hari
 # agar profil GitHub kamu tetap hijau (aktif terus).
@@ -8,7 +8,6 @@
 # - Melakukan commit & push otomatis setiap hari
 # - Bisa dijalankan manual dari tab "Actions"
 #
-# Dibuat oleh: Hasan Mahfudh (yahahahusein)
 # ======================================================
 
 name: 🌿 Keep GitHub Green (Daily Auto Commit)
