@@ -1,0 +1,102 @@
+# ======================================================
+# 🌿 KEEP GITHUB GREEN — BY HASAN MAHFUDH
+# ======================================================
+# Workflow ini otomatis melakukan commit setiap hari
+# agar profil GitHub kamu tetap hijau (aktif terus).
+#
+# - Menulis timestamp ke file activity.log
+# - Melakukan commit & push otomatis setiap hari
+# - Bisa dijalankan manual dari tab "Actions"
+#
+# Dibuat oleh: Hasan Mahfudh (yahahahusein)
+# ======================================================
+
+name: 🌿 Keep GitHub Green (Daily Auto Commit)
+
+on:
+  schedule:
+    # Cron UTC → 09:00 UTC = 16:00 WIB (Asia/Jakarta)
+    - cron: '0 9 * * *'
+  workflow_dispatch: {}   # Dapat dijalankan manual dari tab Actions
+
+permissions:
+  contents: write          # Diperlukan untuk push ke repo
+  actions: read            # Akses default (aman)
+  checks: read
+  deployments: read
+  discussions: read
+  issues: read
+  packages: read
+  pages: read
+  pull-requests: read
+  repository-projects: read
+  security-events: read
+  statuses: read
+
+concurrency:
+  group: keep-github-green
+  cancel-in-progress: false
+
+jobs:
+  auto-commit:
+    name: Commit Otomatis Harian
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # ------------------------------
+      # 1️⃣ Checkout repository
+      # ------------------------------
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false  # Kita pakai GITHUB_TOKEN manual nanti
+          fetch-depth: 0
+
+      # ------------------------------
+      # 2️⃣ Pastikan file activity.log ada
+      # ------------------------------
+      - name: Pastikan file activity.log tersedia
+        run: |
+          if [ ! -f "activity.log" ]; then
+            echo "Membuat file activity.log baru..."
+            echo "=== GitHub Green Log Created ===" > activity.log
+          fi
+
+      # ------------------------------
+      # 3️⃣ Tambahkan timestamp UTC
+      # ------------------------------
+      - name: Tambahkan timestamp terbaru
+        run: |
+          echo "$(date -u +"%Y-%m-%d %H:%M:%S UTC") ✅ Auto commit success" >> activity.log
+
+      # ------------------------------
+      # 4️⃣ Konfigurasi Git user
+      # ------------------------------
+      - name: Konfigurasi identitas Git
+        run: |
+          git config user.name "Hasan Mahfudh"
+          git config user.email "layar89000@gmail.com"  # Ganti dengan email GitHub kamu
+          git config pull.rebase false
+
+      # ------------------------------
+      # 5️⃣ Commit dan push otomatis
+      # ------------------------------
+      - name: Commit & Push Perubahan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git add activity.log
+          if git diff --cached --quiet; then
+            echo "✅ Tidak ada perubahan baru untuk di-commit."
+          else
+            git commit -m "🌿 Auto-commit: Keep GitHub green - $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+            git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" HEAD:main
+            echo "✅ Commit & push berhasil!"
+          fi
+
+      # ------------------------------
+      # 6️⃣ (Opsional) Cek hasil file
+      # ------------------------------
+      - name: Tampilkan isi activity.log (debug)
+        run: tail -n 5 activity.log
